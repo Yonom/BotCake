@@ -7,7 +7,7 @@ using BotBits;
 
 namespace BotCake
 {
-    internal sealed class InitCompleteEvent : Event<InitCompleteEvent>
+    internal sealed class CakeStartedEvent : Event<CakeStartedEvent>
     {
     }
 }

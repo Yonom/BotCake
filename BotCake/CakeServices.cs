@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using BotBits;
 
 namespace BotCake
@@ -8,7 +9,7 @@ namespace BotCake
         [ThreadStatic]
         private static BotBitsClient _client;
 
-        internal static BotBitsClient Client { get { return _client; } }
+        internal static BotBitsClient Client => _client;
 
         public static void WithClient(BotBitsClient client, Action callback)
         {
@@ -24,7 +25,7 @@ namespace BotCake
                 WithClient(bot, () =>
                 {
                     callback(bot);
-                    new InitCompleteEvent().RaiseIn(bot);
+                    new CakeStartedEvent().RaiseIn(bot);
                 }));
         }
 

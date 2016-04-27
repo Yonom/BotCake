@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BotCake</RootNamespace>
     <AssemblyName>BotCake</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,15 +32,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BotBits, Version=1.0.0.0, Culture=neutral, PublicKeyToken=8d4a7b115348c43d, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\BotBits.1.4.3\lib\net40\BotBits.dll</HintPath>
+      <HintPath>..\packages\BotBits.211.1.0\lib\net40\BotBits.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="BotBits.Commands, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\BotBits.Commands.1.1.1\lib\net40\BotBits.Commands.dll</HintPath>
+      <HintPath>..\packages\BotBits.Commands.1.2.6\lib\net40\BotBits.Commands.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="PlayerIOClient">
-      <HintPath>..\packages\PlayerIOClient-Signed.3.2.353\lib\PlayerIOClient.dll</HintPath>
+    <Reference Include="PlayerIOClient, Version=2.3.6.0, Culture=neutral, PublicKeyToken=c7f7b730653f6a44, processorArchitecture=MSIL">
+      <HintPath>..\packages\PlayerIOClient-Signed.3.2.483\lib\PlayerIOClient.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -50,9 +52,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CakeSetup.cs" />
     <Compile Include="CakeServices.cs" />
     <Compile Include="BotBase.cs" />
-    <Compile Include="InitCompleteEvent.cs" />
+    <Compile Include="CakeStartedEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -12,19 +12,21 @@ namespace BotCake
     public class BotBase
     {
         private readonly BotBitsClient _botBits;
-        private bool _commandsLoaded;
+        private int _commandsLoaded;
 
-        public ConnectionManager ConnectionManager { get { return ConnectionManager.Of(this); } }
-        public EventLoader EventLoader { get { return EventLoader.Of(this); } }
-        public Blocks Blocks { get { return Blocks.Of(this); } }
-        public Players Players { get { return Players.Of(this); } }
-        public Room Room { get { return Room.Of(this); } }
-        public Actions Actions { get { return Actions.Of(this); } }
-        public BlockChecker BlockChecker { get { return BlockChecker.Of(this); } }
-        public Chat Chat { get { return Chat.Of(this); } }
+        public ConnectionManager ConnectionManager => ConnectionManager.Of(this);
+        public Login Login => Login.Of(this);
+        public EventLoader EventLoader => EventLoader.Of(this);
+        public Blocks Blocks => Blocks.Of(this);
+        public Players Players => Players.Of(this);
+        public Room Room => Room.Of(this);
+        public Actions Actions => Actions.Of(this);
+        public BlockChecker BlockChecker => BlockChecker.Of(this);
+        public Chat Chat => Chat.Of(this);
+        public Scheduler Scheduler => Scheduler.Of(this);
 
-        public CommandManager CommandManager { get { return CommandManager.Of(this); } }
-        public CommandLoader CommandLoader { get { return CommandLoader.Of(this); } }
+        public CommandManager CommandManager => CommandManager.Of(this);
+        public CommandLoader CommandLoader => CommandLoader.Of(this);
 
         public BotBase()
         {
@@ -33,20 +35,20 @@ namespace BotCake
                 throw new InvalidOperationException(
                     "Please call CakeServices.WithClient before creating new BotBase objects.");
 
-            this.LoadCommands();
             this.EventLoader.Load(this);
+            this.LoadCommands(); // Try to load commands as soon as possible
         }
 
         [EventListener]
-        private void OnInitComplete(InitCompleteEvent e)
+        private void OnInitComplete(CakeStartedEvent e)
         {
             this.LoadCommands();
         }
 
         internal void LoadCommands()
         {
-            if (this._commandsLoaded || !CommandsExtension.IsLoadedInto(this._botBits)) return;
-            this._commandsLoaded = true;
+            if (!CommandsExtension.IsLoadedInto(this._botBits)) return;
+            if (Interlocked.Exchange(ref this._commandsLoaded, 1) == 1) return;
             this.CommandLoader.Load(this);
         }
 

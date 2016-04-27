@@ -1,10 +1,22 @@
-﻿namespace BotCake.Demo
+﻿using System.Threading;
+using BotBits;
+using BotBits.ChatExtras;
+using BotBits.Permissions;
+
+namespace BotCake.Demo
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            CakeServices.Run(bot => new MyBot());
+            CakeSetup
+                .WithBot(bot => new MyBot())
+                .WithCommandsExtension('!')
+                .ListenToConsole()
+                .Do(bot => ChatFormatsExtension.LoadInto(bot, new BasicChatSyntaxProvider("Bot")))
+                .Do(bot => PermissionsExtension.LoadInto(bot, Group.Moderator, new SimplePermissionProvider("processor")))
+                .AsGuest()
+                .CreateJoinRoomAsync("PW01");
         }
     }
 }

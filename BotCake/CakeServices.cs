@@ -24,7 +24,7 @@ namespace BotCake
             BotServices.Run(bot =>
                 WithClient(bot, () =>
                 {
-                    callback(bot);
+                    callback(bot).MainBot = true;
                     new CakeStartedEvent().RaiseIn(bot);
                 }));
         }

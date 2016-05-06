@@ -9,11 +9,12 @@ using BotBits.Commands;
 
 namespace BotCake
 {
-    public class BotBase
+    public class BotBase : IDisposable
     {
         private readonly BotBitsClient _botBits;
         private int _commandsLoaded;
 
+        internal bool MainBot { get; set; }
         public ConnectionManager ConnectionManager => ConnectionManager.Of(this);
         public Login Login => Login.Of(this);
         public EventLoader EventLoader => EventLoader.Of(this);
@@ -55,6 +56,27 @@ namespace BotCake
         public static implicit operator BotBitsClient(BotBase bot)
         {
             return bot._botBits;
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.EventLoader.Unload(this);
+                if (this._commandsLoaded == 1)
+                    this.CommandLoader.Unload(this);
+
+                if (this.MainBot)
+                {
+                    this._botBits.Dispose();
+                }
+            }
         }
     }
 }

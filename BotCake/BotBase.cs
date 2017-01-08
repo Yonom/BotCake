@@ -51,7 +51,10 @@ namespace BotCake
         [EventListener]
         private void OnInitComplete(CakeStartedEvent e)
         {
-            this.LoadCommands();
+            if (CakeServices.CommandsExtensionAvailable())
+            {
+                this.LoadCommands();
+            }
         }
 
         internal void LoadCommands()

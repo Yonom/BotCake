@@ -61,7 +61,8 @@ namespace BotCake
 
         public CakeSetup ListenToConsole()
         {
-            if (!CakeServices.CommandsExtensionAvailable() || !this.ListenToConsoleInternal()) throw new Exception("You must first load CommandsExtension!");
+            if (!CommandsExtensionServices.IsAvailable() || !this.ListenToConsoleInternal())
+                throw new Exception("You must first load CommandsExtension!");
             return this;
         }
 

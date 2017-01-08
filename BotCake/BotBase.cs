@@ -21,7 +21,7 @@ namespace BotCake
 
             this.EventLoader.Load(this);
 
-            if (CakeServices.CommandsExtensionAvailable())
+            if (CommandsExtensionServices.IsAvailable())
             {
                 this.LoadCommands(); // Try to load commands as soon as possible
             }
@@ -51,7 +51,7 @@ namespace BotCake
         [EventListener]
         private void OnInitComplete(CakeStartedEvent e)
         {
-            if (CakeServices.CommandsExtensionAvailable())
+            if (CommandsExtensionServices.IsAvailable())
             {
                 this.LoadCommands();
             }

@@ -36,7 +36,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="BotBits.Commands, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\BotBits.Commands.2.0.0\lib\net40\BotBits.Commands.dll</HintPath>
+      <HintPath>..\packages\BotBits.Commands.2.0.1\lib\net40\BotBits.Commands.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PlayerIOClient, Version=2.3.6.0, Culture=neutral, PublicKeyToken=c7f7b730653f6a44, processorArchitecture=MSIL">
@@ -52,6 +52,7 @@
     <Compile Include="CakeServices.cs" />
     <Compile Include="BotBase.cs" />
     <Compile Include="CakeStartedEvent.cs" />
+    <Compile Include="CommandsExtensionServices.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

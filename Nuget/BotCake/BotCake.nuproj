@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BotCake\BotCake.csproj" />
+    <ProjectReference Include="..\..\BotCake\BotCake.csproj" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>dddea0ad-1082-4516-9a2c-79f458a01ac9</ProjectGuid>
@@ -22,7 +22,7 @@
   <Import Project="$(NuProjPath)\NuProj.props" Condition="Exists('$(NuProjPath)\NuProj.props')" />
   <PropertyGroup Label="Configuration">
     <Id>BotCake</Id>
-    <Version>1.2.1</Version>
+    <Version>2.0.0</Version>
     <Title>BotCake</Title>
     <Authors>Younom</Authors>
     <Owners>Younom</Owners>

@@ -1,18 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using BotBits;
 using BotBits.Commands;
 
+//using BotBits.Commands;
+
 namespace BotCake
 {
-    public class BotBase : IDisposable
+    public abstract class BotBase : IDisposable
     {
         private readonly BotBitsClient _botBits;
         private int _commandsLoaded;
+
+        protected BotBase()
+        {
+            this._botBits = CakeServices.Client;
+            if (this._botBits == null)
+                throw new InvalidOperationException(
+                    "Please call CakeServices.WithClient before creating new BotBase objects.");
+
+            this.EventLoader.Load(this);
+
+            if (CakeServices.CommandsExtensionAvailable())
+            {
+                this.LoadCommands(); // Try to load commands as soon as possible
+            }
+        }
 
         internal bool MainBot { get; set; }
         public ConnectionManager ConnectionManager => ConnectionManager.Of(this);
@@ -29,15 +42,10 @@ namespace BotCake
         public CommandManager CommandManager => CommandManager.Of(this);
         public CommandLoader CommandLoader => CommandLoader.Of(this);
 
-        public BotBase()
+        public void Dispose()
         {
-            this._botBits = CakeServices.Client;
-            if (this._botBits == null)
-                throw new InvalidOperationException(
-                    "Please call CakeServices.WithClient before creating new BotBase objects.");
-
-            this.EventLoader.Load(this);
-            this.LoadCommands(); // Try to load commands as soon as possible
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         [EventListener]
@@ -58,25 +66,23 @@ namespace BotCake
             return bot._botBits;
         }
 
-        public void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
             {
                 this.EventLoader.Unload(this);
-                if (this._commandsLoaded == 1)
-                    this.CommandLoader.Unload(this);
+                if (this._commandsLoaded == 1) this.DisposeCommands();
 
                 if (this.MainBot)
                 {
                     this._botBits.Dispose();
                 }
             }
+        }
+
+        private void DisposeCommands()
+        {
+            this.CommandLoader.Unload(this);
         }
     }
 }

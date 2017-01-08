@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using BotBits;
+using BotBits.Commands;
 
 namespace BotCake
 {
@@ -31,9 +31,27 @@ namespace BotCake
 
         public static void Exit()
         {
-            if (Client == null)
-                throw new InvalidOperationException("CakeServices.Run is not running on this thread.");
+            if (Client == null) throw new InvalidOperationException("CakeServices.Run is not running on this thread.");
             Client.Dispose();
+        }
+
+        public static bool CommandsExtensionAvailable()
+        {
+            try
+            {
+                UseCommandsExtension();
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static Type UseCommandsExtension()
+        {
+            return typeof(CommandsExtension);
         }
     }
 }

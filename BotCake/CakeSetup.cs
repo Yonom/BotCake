@@ -6,7 +6,7 @@ using PlayerIOClient;
 
 namespace BotCake
 {
-    public class CakeSetup : ILogin<LoginClient>, IPlayerIOGame<LoginClient>, IDisposable
+    public sealed class CakeSetup : ILogin<LoginClient>, IPlayerIOGame<LoginClient>, IDisposable
     {
         private BotBitsClient _client;
 
@@ -20,13 +20,27 @@ namespace BotCake
                     CakeServices.Run(bot =>
                     {
                         this._client = bot;
+                        var res = callback(bot);
                         resetEvent.Set();
-                        return callback(bot);
+                        return res;
                     });
-                }) { IsBackground = isBackground, Name = "BotCake.Thread"}.Start();
+                }) { IsBackground = isBackground, Name = "BotCake.Thread" }.Start();
                 resetEvent.WaitOne();
             }
         }
+
+        public void Dispose()
+        {
+            this._client.Dispose();
+        }
+
+        public LoginClient WithClient(Client client)
+        {
+            return Login.Of(this._client).WithClient(client);
+        }
+
+        public string GameId => Login.Of(this._client).GameId;
+        ILogin<LoginClient> IPlayerIOGame<LoginClient>.Login => this;
 
         public static CakeSetup WithBot(Func<BotBitsClient, BotBase> callback, bool isBackground = false)
         {
@@ -47,8 +61,15 @@ namespace BotCake
 
         public CakeSetup ListenToConsole()
         {
-            CommandManager.Of(this._client).CreateConsoleCommandReaderThread().Start();
+            if (!CakeServices.CommandsExtensionAvailable() || !this.ListenToConsoleInternal()) throw new Exception("You must first load CommandsExtension!");
             return this;
+        }
+
+        public bool ListenToConsoleInternal()
+        {
+            if (!CommandsExtension.IsLoadedInto(this._client)) return false;
+            CommandManager.Of(this._client).CreateConsoleCommandReaderThread().Start();
+            return true;
         }
 
         public CakeSetup Do(Action<BotBitsClient> callback)
@@ -57,17 +78,14 @@ namespace BotCake
             return this;
         }
 
-        public LoginClient WithClient(Client client)
+        public PlayerIOGame WithGameId(string gameId)
         {
-            return Login.Of(this._client).WithClient(client);
+            return new PlayerIOGame(this, gameId);
         }
 
-        public void Dispose()
+        public NonFutureProofLogin WithoutFutureProof()
         {
-            this._client.Dispose();
+            return Login.Of(this._client).WithoutFutureProof();
         }
-
-        public string GameId => Login.Of(this._client).GameId;
-        ILogin<LoginClient> IPlayerIOGame<LoginClient>.Login => this;
     }
 }

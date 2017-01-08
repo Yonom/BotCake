@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotCake", "BotCake\BotCake.csproj", "{3C43CA4D-38E2-4C72-90EA-250483BE8186}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotCake.Demo", "BotCake.Demo\BotCake.Demo.csproj", "{74294744-A64F-4AF4-B2C7-9EDB17741EA8}"
 EndProject
-Project("{FF286327-C783-4F7A-AB73-9BCBAD0D4460}") = "BotCake.NuGet", "BotCake.NuGet\BotCake.NuGet.nuproj", "{DDDEA0AD-1082-4516-9A2C-79F458A01AC9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{F87F19EE-A82D-45EA-8F04-4CC93DAF1925}"
+EndProject
+Project("{FF286327-C783-4F7A-AB73-9BCBAD0D4460}") = "BotCake", "Nuget\BotCake\BotCake.nuproj", "{DDDEA0AD-1082-4516-9A2C-79F458A01AC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +32,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DDDEA0AD-1082-4516-9A2C-79F458A01AC9} = {F87F19EE-A82D-45EA-8F04-4CC93DAF1925}
 	EndGlobalSection
 EndGlobal

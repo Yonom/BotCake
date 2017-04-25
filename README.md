@@ -81,9 +81,6 @@ class HelloWorld : BotBase
         Chat.Say("hello world!");
     }
 }
-
-// in Program.cs
-static HelloWorld hw = new HelloWorld();
 ```
 
 Much better!

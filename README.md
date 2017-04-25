@@ -49,7 +49,7 @@ class HelloWorld
     private BotBitsClient bot;          
     // other variables
     
-    public MyProgramPart(BotBitsClient client)
+    public HelloWorld(BotBitsClient client)
     {
         bot = client;
         EventLoader.Of(bot).Load(this);
@@ -69,7 +69,7 @@ and you still don't really care about BotBitsClient or EventLoader/CommandLoader
 
 So what if:
 - we loaded EventListeners and Commands for you and
-- removed the .Of(bot) requirement so you don't need to pass BotBitsClient?
+- removed the .Of(bot) requirement so you don't need to pass BotBitsClient to HelloWorld?
 
 Your HelloWorld class would look like this:
 ```csharp

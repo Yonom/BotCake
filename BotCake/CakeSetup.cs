@@ -13,9 +13,7 @@ namespace BotCake
         private Action<BotBitsClient> _actions;
         private int _runs;
         private BotBitsClient _client;
-
-        public bool IsRunning => this._runs > 0;
-
+        
         private CakeSetup(Func<BotBitsClient, BotBase> factory)
         {
             this._factory = factory;
@@ -126,7 +124,7 @@ namespace BotCake
             return this.TryRun().WithoutFutureProof();
         }
 
-        public string GameId => this.TryRun().GameId;
+        string IPlayerIOGame<LoginClient>.GameId => this.TryRun().GameId;
 
         public PlayerIOGame WithGameId(string gameId)
         {

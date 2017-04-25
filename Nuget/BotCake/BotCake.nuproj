@@ -26,15 +26,15 @@
     <Title>BotCake</Title>
     <Authors>Younom</Authors>
     <Owners>Younom</Owners>
-    <Summary>BotCake is a framework for creating Console Application bots for BotBits.</Summary>
-    <Description>BotCake is a framework for creating Console Application bots for BotBits.</Description>
+    <Summary>BotCake is a lightweight dependency injection framework for BotBits.</Summary>
+    <Description>BotCake is a lightweight dependency injection framework for BotBits.</Description>
     <ReleaseNotes>
     </ReleaseNotes>
     <ProjectUrl>
     </ProjectUrl>
     <LicenseUrl>
     </LicenseUrl>
-    <Copyright>Copyright © Sepehr Farshid</Copyright>
+    <Copyright>Copyright © Simon Farshid</Copyright>
     <Tags>BotBits EverybodyEdits BotCake</Tags>
   </PropertyGroup>
   <Import Project="$(NuProjPath)\NuProj.targets" />

@@ -14,7 +14,7 @@ namespace BotCake.Demo
                 .WithCommandsExtension('!')
                 .ListenToConsole()
                 .Do(bot => ChatFormatsExtension.LoadInto(bot, new BasicChatSyntaxProvider("Bot")))
-                .Do(bot => PermissionsExtension.LoadInto(bot, Group.Moderator, new SimplePermissionProvider("processor")))
+                .Do(bot => PermissionsExtension.WithCommandsLoadInto(bot, Group.Moderator, new SimplePermissionProvider("processor")))
                 .AsGuest()
                 .CreateJoinRoomAsync("PW01");
         }

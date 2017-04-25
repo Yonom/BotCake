@@ -21,12 +21,22 @@ namespace BotCake
 
         public static void Run(Func<BotBitsClient, BotBase> callback)
         {
+            Exception exception = null;
             BotServices.Run(bot =>
                 WithClient(bot, () =>
                 {
-                    callback(bot).MainBot = true;
-                    new CakeStartedEvent().RaiseIn(bot);
+                    try
+                    {
+                        callback(bot).MainBot = true;
+                        new CakeStartedEvent().RaiseIn(bot);
+                    }
+                    catch (Exception ex)
+                    {
+                        exception = ex;
+                        bot.Dispose();
+                    }
                 }));
+            if (exception != null) throw exception;
         }
 
         public static void Exit()

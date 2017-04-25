@@ -1,92 +1,137 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using BotBits;
 using BotBits.Commands;
 using PlayerIOClient;
 
 namespace BotCake
 {
-    public sealed class CakeSetup : ILogin<LoginClient>, IPlayerIOGame<LoginClient>, IDisposable
+    public sealed class CakeSetup : ILogin<LoginClient>, IPlayerIOGame<LoginClient>
     {
+        private readonly Func<BotBitsClient, BotBase> _factory;
+        private Action<BotBitsClient> _actions;
+        private int _runs;
         private BotBitsClient _client;
 
-        private CakeSetup(Func<BotBitsClient, BotBase> callback, bool isBackground)
+        public bool IsRunning => this._runs > 0;
+
+        private CakeSetup(Func<BotBitsClient, BotBase> factory)
         {
-            // ReSharper disable once AccessToDisposedClosure
-            using (var resetEvent = new ManualResetEvent(false))
-            {
-                new Thread(() =>
-                {
-                    CakeServices.Run(bot =>
-                    {
-                        this._client = bot;
-                        var res = callback(bot);
-                        resetEvent.Set();
-                        return res;
-                    });
-                }) { IsBackground = isBackground, Name = "BotCake.Thread" }.Start();
-                resetEvent.WaitOne();
-            }
+            this._factory = factory;
         }
 
-        public void Dispose()
+        public static CakeSetup WithBot(Func<BotBitsClient, BotBase> callback)
         {
-            this._client.Dispose();
+            return new CakeSetup(callback);
         }
 
-        public LoginClient WithClient(Client client)
+        public CakeSetup WithSendTimerFrequency(double frequency)
         {
-            return Login.Of(this._client).WithClient(client);
-        }
-
-        public string GameId => Login.Of(this._client).GameId;
-        ILogin<LoginClient> IPlayerIOGame<LoginClient>.Login => this;
-
-        public static CakeSetup WithBot(Func<BotBitsClient, BotBase> callback, bool isBackground = false)
-        {
-            return new CakeSetup(callback, isBackground);
+            this._actions += bot => MessageSender.Of(bot).SendTimerFrequency = frequency;
+            return this;
         }
 
         public CakeSetup WithCommandsExtension(params char[] commandPrefixes)
         {
-            CommandsExtension.LoadInto(this._client, commandPrefixes);
+            this._actions += bot => CommandsExtension.LoadInto(bot, commandPrefixes);
             return this;
         }
 
         public CakeSetup WithCommandsExtension(ListeningBehavior listeningBehavior, params char[] commandPrefixes)
         {
-            CommandsExtension.LoadInto(this._client, listeningBehavior, commandPrefixes);
+            this._actions += bot => CommandsExtension.LoadInto(bot, listeningBehavior, commandPrefixes);
             return this;
         }
 
         public CakeSetup ListenToConsole()
         {
-            if (!CommandsExtensionServices.IsAvailable() || !this.ListenToConsoleInternal())
-                throw new Exception("You must first load CommandsExtension!");
+            this._actions += bot =>
+            {
+                if (!CommandsExtensionServices.IsAvailable() || !this.ListenToConsoleInternal(bot))
+                    throw new InvalidOperationException("You must first load CommandsExtension before calling ListenToConsole!");
+            };
             return this;
         }
 
-        public bool ListenToConsoleInternal()
+        public bool ListenToConsoleInternal(BotBitsClient client)
         {
-            if (!CommandsExtension.IsLoadedInto(this._client)) return false;
-            CommandManager.Of(this._client).CreateConsoleCommandReaderThread().Start();
+            if (!CommandsExtension.IsLoadedInto(client)) return false;
+            CommandManager.Of(client).CreateConsoleCommandReaderThread().Start();
             return true;
         }
 
         public CakeSetup Do(Action<BotBitsClient> callback)
         {
-            callback(this._client);
+            this._actions += callback;
             return this;
         }
+
+        private Login TryRun()
+        {
+            if (this._runs == 2)
+                return Login.Of(this._client);
+            else if (this._runs == 1)
+                throw new InvalidOperationException("Cannot access this property while Run is in progress.");
+            return this.Run(false);
+        }
+
+        public Login Run(bool background)
+        {
+            if (Interlocked.CompareExchange(ref this._runs, 1, 0) == 1)
+                throw new InvalidOperationException("Run has already been called on this CakeSetup.");
+
+            var tcs = new TaskCompletionSource<BotBitsClient>();
+            new Thread(() =>
+            {
+                try
+                {
+                    CakeServices.Run(bot =>
+                    {
+                        var res = this._factory(bot);
+                        this._actions(bot);
+
+                        this._client = bot;
+                        this._runs = 2;
+
+                        tcs.TrySetResult(bot);
+                        return res;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    this._runs = 0;
+                    tcs.TrySetException(ex);
+                }
+            }) { IsBackground = background, Name = "BotCake.Thread" }.Start();
+
+            try
+            {
+
+                return Login.Of(tcs.Task.Result);
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        public LoginClient WithClient(Client client)
+        {
+            return this.TryRun().WithClient(client);
+        }
+
+        public NonFutureProofLogin WithoutFutureProof()
+        {
+            return this.TryRun().WithoutFutureProof();
+        }
+
+        public string GameId => this.TryRun().GameId;
 
         public PlayerIOGame WithGameId(string gameId)
         {
             return new PlayerIOGame(this, gameId);
         }
-
-        public NonFutureProofLogin WithoutFutureProof()
-        {
-            return Login.Of(this._client).WithoutFutureProof();
-        }
+        ILogin<LoginClient> IPlayerIOGame<LoginClient>.Login => this;
     }
 }

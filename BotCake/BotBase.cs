@@ -36,6 +36,7 @@ namespace BotCake
         public Room Room => Room.Of(this);
         public Actions Actions => Actions.Of(this);
         public BlockChecker BlockChecker => BlockChecker.Of(this);
+        public MessageSender MessageSender => MessageSender.Of(this);
         public Chat Chat => Chat.Of(this);
         public Scheduler Scheduler => Scheduler.Of(this);
 

@@ -134,6 +134,13 @@ You no longer need to use .Of(bot) to access BotBits / Commands Packages. To cha
 Chat.Say("hi");
 ```
 
+You can have as many classes as you want and create as many instances of them as you want. BotBases can be created just like any other class: 
+```csharp
+var helloWorld = new HelloWorld();
+```
+
+If you create multiple instances of a BotBase and they listen to Events or Commands, you should Dispose() the instances you no longer need to prevent memory leaks.
+
 ## Help, I need to use .Of()!
 BotCake does not support every class that has a .Of(bot) requirement. For SendMessages, Events, etc. you can use .Of(this) instead.
 

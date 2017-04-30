@@ -87,7 +87,7 @@ namespace BotCake
                     CakeServices.Run(bot =>
                     {
                         var res = this._factory(bot);
-                        this._actions(bot);
+                        this._actions?.Invoke(bot);
 
                         this._client = bot;
                         this._runs = 2;

@@ -11,7 +11,7 @@ namespace BotCake
     {
         private readonly Func<BotBitsClient, BotBase> _factory;
         private Action<BotBitsClient> _actions;
-        private int _runs;
+        private int _runState;
         private BotBitsClient _client;
         
         private CakeSetup(Func<BotBitsClient, BotBase> factory)
@@ -67,16 +67,21 @@ namespace BotCake
 
         private Login TryRun()
         {
-            if (this._runs == 2)
-                return Login.Of(this._client);
-            else if (this._runs == 1)
-                throw new InvalidOperationException("Cannot access this property while Run is in progress.");
+            switch (this._runState)
+            {
+                case 2:
+                    return Login.Of(this._client);
+                case 1:
+                    throw new InvalidOperationException("Cannot access this property while Run is in progress.");
+            }
             return this.Run(false);
         }
 
-        public Login Run(bool background)
+        public Login Run(bool background, Action<Action> wrapper = null)
         {
-            if (Interlocked.CompareExchange(ref this._runs, 1, 0) == 1)
+            if (wrapper == null) wrapper = w => w();
+
+            if (Interlocked.CompareExchange(ref this._runState, 1, 0) != 0)
                 throw new InvalidOperationException("Run has already been called on this CakeSetup.");
 
             var tcs = new TaskCompletionSource<BotBitsClient>();
@@ -84,21 +89,24 @@ namespace BotCake
             {
                 try
                 {
-                    CakeServices.Run(bot =>
+                    wrapper(() =>
                     {
-                        var res = this._factory(bot);
-                        this._actions?.Invoke(bot);
+                        CakeServices.Run(bot =>
+                        {
+                            var res = this._factory(bot);
+                            this._actions?.Invoke(bot);
 
-                        this._client = bot;
-                        this._runs = 2;
+                            this._client = bot;
+                            this._runState = 2;
 
-                        tcs.TrySetResult(bot);
-                        return res;
+                            tcs.TrySetResult(bot);
+                            return res;
+                        });
                     });
                 }
                 catch (Exception ex)
                 {
-                    this._runs = 0;
+                    this._runState = 0;
                     tcs.TrySetException(ex);
                 }
             }) { IsBackground = background, Name = "BotCake.Thread" }.Start();

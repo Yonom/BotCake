@@ -19,6 +19,9 @@ namespace BotCake
                 throw new InvalidOperationException(
                     "Please call CakeServices.WithClient before creating new BotBase objects.");
 
+            if (CakeServices.Starting)
+                CakeStartedEvent.Of(this._botBits).Bind(this.OnInitComplete);
+
             this.EventLoader.Load(this);
 
             if (CommandsExtensionServices.IsAvailable())
@@ -48,8 +51,7 @@ namespace BotCake
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        [EventListener]
+        
         private void OnInitComplete(CakeStartedEvent e)
         {
             if (CommandsExtensionServices.IsAvailable())

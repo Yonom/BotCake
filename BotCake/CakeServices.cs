@@ -8,34 +8,61 @@ namespace BotCake
     {
         [ThreadStatic]
         private static BotBitsClient _client;
+        [ThreadStatic]
+        private static bool _starting;
 
         internal static BotBitsClient Client => _client;
+        internal static bool Starting => _starting;
 
         public static void WithClient(BotBitsClient client, Action callback)
         {
-            var oldClient = client;
+            var oldClient = _client;
             _client = client;
-            callback();
-            _client = oldClient;
+            try
+            {
+                callback();
+            }
+            finally
+            {
+                _client = oldClient;
+            }
+        }
+
+        public static void WithStarting(Action callback)
+        {
+            var oldStarting = _starting;
+            _starting = true;
+            try
+            {
+                callback();
+            }
+            finally
+            {
+                _starting = oldStarting;
+            }
         }
 
         public static void Run(Func<BotBitsClient, BotBase> callback)
         {
             Exception exception = null;
-            BotServices.Run(bot =>
-                WithClient(bot, () =>
+
+            var oldClient = _client;
+            BotServices.Run(bot => WithStarting(() =>
+            {
+                _client = bot;
+                try
                 {
-                    try
-                    {
-                        callback(bot).MainBot = true;
-                        new CakeStartedEvent().RaiseIn(bot);
-                    }
-                    catch (Exception ex)
-                    {
-                        exception = ex;
-                        bot.Dispose();
-                    }
-                }));
+                    callback(bot).MainBot = true;
+                    new CakeStartedEvent().RaiseIn(bot);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    bot.Dispose();
+                }
+            }));
+            _client = oldClient;
+
             if (exception != null) throw exception;
         }
 

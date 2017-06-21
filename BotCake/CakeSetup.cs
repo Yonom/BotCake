@@ -99,7 +99,7 @@ namespace BotCake
                             this._client = bot;
                             this._runState = 2;
 
-                            tcs.TrySetResult(bot);
+                            tcs.SetResult(bot);
                             return res;
                         });
                     });
@@ -107,7 +107,7 @@ namespace BotCake
                 catch (Exception ex)
                 {
                     this._runState = 0;
-                    tcs.TrySetException(ex);
+                    if (!tcs.TrySetException(ex)) throw;
                 }
             }) { IsBackground = background, Name = "BotCake.Thread" }.Start();
 
